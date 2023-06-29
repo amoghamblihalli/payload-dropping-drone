@@ -1,0 +1,203 @@
+# import libraries here
+import dronekit_sitl
+import dronekit as dk
+import time
+import cv2 as cv
+import math as m
+
+# starting sim...
+print("Starting the D1-Phantom...")
+sitl = dronekit_sitl.start_default()
+connection_string = sitl.connection_string() # or 'tcp:127.0.0.1:11345'
+
+# connecting to drone...
+print("Connecting to vehicle on: %s" % (connection_string,))
+vehicle = dk.connect(connection_string, wait_ready=True)
+
+# input some variables here
+alt = float(input("Enter target altitude: "))
+vel = float(input("Enter target velocity: "))
+
+# commencing pre-check ops
+def pre_check():
+    print("\nGet all vehicle attribute values:")
+    print(" Autopilot Firmware version: %s" % vehicle.version)
+    print("   Major version number: %s" % vehicle.version.major)
+    print("   Minor version number: %s" % vehicle.version.minor)
+    print("   Patch version number: %s" % vehicle.version.patch)
+    print("   Release type: %s" % vehicle.version.release_type())
+    print("   Release version: %s" % vehicle.version.release_version())
+    print("   Stable release?: %s" % vehicle.version.is_stable())
+    print(" Autopilot capabilities")
+    print("   Supports MISSION_FLOAT message type: %s" % vehicle.capabilities.mission_float)
+    print("   Supports PARAM_FLOAT message type: %s" % vehicle.capabilities.param_float)
+    print("   Supports MISSION_INT message type: %s" % vehicle.capabilities.mission_int)
+    print("   Supports COMMAND_INT message type: %s" % vehicle.capabilities.command_int)
+    print("   Supports PARAM_UNION message type: %s" % vehicle.capabilities.param_union)
+    print("   Supports ftp for file transfers: %s" % vehicle.capabilities.ftp)
+    print("   Supports commanding attitude offboard: %s" % vehicle.capabilities.set_attitude_target)
+    print("   Supports commanding position and velocity targets in local NED frame: %s" % vehicle.capabilities.set_attitude_target_local_ned)
+    print("   Supports set position + velocity targets in global scaled integers: %s" % vehicle.capabilities.set_altitude_target_global_int)
+    print("   Supports terrain protocol / data handling: %s" % vehicle.capabilities.terrain)
+    print("   Supports direct actuator control: %s" % vehicle.capabilities.set_actuator_target)
+    print("   Supports the flight termination command: %s" % vehicle.capabilities.flight_termination)
+    print("   Supports mission_float message type: %s" % vehicle.capabilities.mission_float)
+    print("   Supports onboard compass calibration: %s" % vehicle.capabilities.compass_calibration)
+    print(" Global Location: %s" % vehicle.location.global_frame)
+    print(" Global Location (relative altitude): %s" % vehicle.location.global_relative_frame)
+    print(" Local Location: %s" % vehicle.location.local_frame)
+    print(" Attitude: %s" % vehicle.attitude)
+    print(" Velocity: %s" % vehicle.velocity)
+    print(" GPS: %s" % vehicle.gps_0)
+    print(" Gimbal status: %s" % vehicle.gimbal)
+    print(" Battery: %s" % vehicle.battery)
+    print(" EKF OK?: %s" % vehicle.ekf_ok)
+    print(" Last Heartbeat: %s" % vehicle.last_heartbeat)
+    print(" Rangefinder: %s" % vehicle.rangefinder)
+    print(" Rangefinder distance: %s" % vehicle.rangefinder.distance)
+    print(" Rangefinder voltage: %s" % vehicle.rangefinder.voltage)
+    print(" Heading: %s" % vehicle.heading)
+    print(" Is Armable?: %s" % vehicle.is_armable)
+    print(" System status: %s" % vehicle.system_status.state)
+    print(" Groundspeed: %s" % vehicle.groundspeed)    # settable
+    print(" Airspeed: %s" % vehicle.airspeed)    # settable
+    print(" Mode: %s" % vehicle.mode.name)    # settable
+    print(" Armed: %s" % vehicle.armed)    # settable
+
+# arming and taking-off
+def arm_takeoff(TargetAlt):
+    while not vehicle.is_armable:
+        print("Waiting for vehicle to initialise...")
+        time.sleep(1)
+    print("Arming motors...")
+    vehicle.mode = dk.VehicleMode("GUIDED")  # always set to GUIDED while arming
+    vehicle.armed = True
+
+    while not vehicle.armed:
+        print("Waiting for arming...")
+        time.sleep(1)
+
+    print("Taking off!")
+    vehicle.simple_takeoff(TargetAlt)
+
+    while True:
+        print("Altitude: ", vehicle.location.global_relative_frame.alt)
+        if vehicle.location.global_relative_frame.alt >= TargetAlt * 0.95:
+            print("Reached target altitude")
+            break
+        time.sleep(1)
+
+    print("Current Velocity: %s m/s" % vehicle.velocity)
+    print("Current Altitude: %s m" % vehicle.location.global_relative_frame.alt)
+    print("Current Heading: %s deg" % vehicle.heading)
+    print("Current Position- Lat:%s Lon:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon,))
+    print("Setting Airspeed to: %s" % vel)
+
+# commencing camera ops - take da pic
+"""
+def cam_ops_pic():
+        cam_port = 0 # 0 for internal cam, 1 for external cam
+        cam = cv.VideoCapture(cam_port)
+        result, image = cam.read()
+
+        if result:  # No error, camera is successfully opened
+            cv.imshow("Drone Cam", image)  # Showing result
+            cv.imwrite("DroneCam.jpeg", image)  # Saving image
+            cv.waitKey(0)
+            cv.destroyWindow("Drone Cam")
+            cam.release()  # Release the camera resources
+        else:
+            print("Failed to open camera port {cam_port}")
+"""
+
+# commencing image processing ops - find da target
+
+""""
+def image_to_coordinates(image_path, real_world_width, real_world_height, altitude):
+    # Load the image
+    image = cv.imread(image_path)
+
+    # Get the image dimensions
+    image_height, image_width, _ = image.shape
+
+    # Get the bounding box coordinates
+    bounding_box_x, bounding_box_y, bounding_box_width, bounding_box_height = find_bounding_box(image)
+
+    # Calculate the centroid of the bounding box
+    centroid_x = bounding_box_x + bounding_box_width // 2
+    centroid_y = bounding_box_y + bounding_box_height // 2
+
+    # Convert the centroid coordinates to real-world position coordinates
+    # Assuming the image represents a 2D map with known dimensions and GPS coordinates
+    # Calculate the scaling factor based on the image and real-world dimensions
+    image_scale_x = image_width / real_world_width
+    image_scale_y = image_height / real_world_height
+
+    # Convert the centroid coordinates to real-world position coordinates
+    real_world_x = centroid_x / image_scale_x
+    real_world_y = centroid_y / image_scale_y
+
+    # Create a LocationGlobalRelative object with the converted coordinates
+    real_world_position = LocationGlobalRelative(real_world_x, real_world_y, altitude)
+
+    return real_world_position
+
+def find_bounding_box(image):
+    # Perform the necessary image processing steps to find the bounding box
+    # This could include thresholding, contour detection, etc.
+    # Once you have the bounding box coordinates, return them as (x, y, width, height)
+    # You can use OpenCV functions like cv2.findContours and cv2.boundingRect to achieve this.
+    pass
+
+# Define the necessary variables and parameters
+image_path = "path/to/image.jpg"
+real_world_width = 10.0  # Example: Width of the real-world map represented by the image
+real_world_height = 8.0  # Example: Height of the real-world map represented by the image
+altitude = 20.0  # Example: Altitude at which the drone will be flying
+
+# Call the function to convert the image coordinates to real-world coordinates
+marked_point = (100, 150)  # Example: Coordinates of the marked point on the image
+coordinates = image_to_coordinates(image_path, real_world_width, real_world_height, altitude)
+
+print("Real-world coordinates: ", coordinates)
+"""
+
+
+piclocation = dk.LocationGlobalRelative(-35.3632609, 149.1652289, 20)
+
+# commencing navigation ops - go to da target
+def flight():
+    print("On my way to", piclocation)
+    vehicle.simple_goto(piclocation)
+    # Wait until vehicle reaches the target location
+    while vehicle.mode.name == "GUIDED":
+        remaining_distance = get_distance_metres(vehicle.location.global_frame, piclocation)
+        print("Distance to target: ", remaining_distance)
+            
+        if remaining_distance <= 1:  # Specify the desired threshold distance
+            print("Reached target location!")
+            break
+
+        time.sleep(1)
+
+# commencing drop - drop da load
+def dropper():
+    print("Dropping payload")
+
+# commencing landing ops - land da drone
+def return_n_land():
+    print("Returning to Launch")
+    vehicle.mode = dk.VehicleMode("RTL")
+
+# commencing shutdown ops - shutdown da drone
+def shutdown():
+    print("Close vehicle object")
+    vehicle.close()
+    if sitl is not None:
+        sitl.stop()
+    print("Complete")
+
+# execute order 66 - order of ops
+pre_check()
+arm_takeoff(alt)
+# cam_ops_pic()

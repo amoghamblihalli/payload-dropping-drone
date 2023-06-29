@@ -3,10 +3,11 @@ import dronekit_sitl
 from dronekit import *
 import time
 import cv2 as cv
+from math import radians, sin, cos, sqrt, atan2
 
 # starting sim
 sitl = dronekit_sitl.start_default()
-connection_string = sitl.connection_string()
+connection_string =  sitl.connection_string() # 'tcp:127.0.0.1:11345'
 
 # connecting to vehicle
 print("Connecting to vehicle on: %s" % (connection_string,))
@@ -83,7 +84,7 @@ def arm_n_takeoff(aTargetAltitude):
 
 # camera - take a pic
 def take_pic():
-    cam_port = 0
+    cam_port = 1
     cam = cv.VideoCapture(cam_port)
     result, image = cam.read()
 
@@ -92,25 +93,46 @@ def take_pic():
         cv.imwrite("DroneCam.jpeg", image) # saving image
         cv.waitKey(0)
         cv.destroyWindow("Drone Cam")
+
     else:
         print("No image detected. Please try again")
 
 # process image
 def process_pic():
-    global piclocation
     print("Processing image")
-    # insert location code here?
+    # Insert location code here
+    global piclocation
+    piclocation = LocationGlobalRelative(-35.3632609, 149.1652289, 20)
 
-    piclocation = LocationGlobalRelative(-34.364114, 149.166022,20)
+def get_distance_metres(location1, location2):
+    dlat = radians(location2.lat - location1.lat)
+    dlon = radians(location2.lon - location1.lon)
+    a = sin(dlat / 2) * sin(dlat / 2) + cos(radians(location1.lat)) * cos(radians(location2.lat)) * sin(dlon / 2) * sin(dlon / 2)
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    distance = 6371000 * c  # Approximate radius of the Earth in meters
+    return distance
 
 # navigation - waypoint?
 def goto_dropzone():
     global piclocation
-    print("Set default/target airspeed to 3")
-    vehicle.airspeed = 3
+    # Check if piclocation is defined
+    if 'piclocation' not in globals():
+        print("piclocation is not defined. Make sure to call process_pic() first.")
+        return
+    
     print("On my way to", piclocation)
     vehicle.simple_goto(piclocation)
 
+    # Wait until vehicle reaches the target location
+    while vehicle.mode.name == "GUIDED":
+        remaining_distance = get_distance_metres(vehicle.location.global_frame, piclocation)
+        print("Distance to target: ", remaining_distance)
+        
+        if remaining_distance <= 1:  # Specify the desired threshold distance
+            print("Reached target location!")
+            break
+
+        time.sleep(1)
 
 # drop da bomb
 def dropper():
@@ -131,11 +153,14 @@ def shutdown():
     print("Complete")
 
 # execute order 66 - main
+to_height = float(input("Enter height for take-off: "))
+
 pre_check()
-arm_n_takeoff(20)
+arm_n_takeoff(to_height)
+
 take_pic()
 process_pic()
 goto_dropzone()
 dropper()
-return_n_land()
+#return_n_land()
 shutdown()
