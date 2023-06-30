@@ -94,24 +94,23 @@ def arm_takeoff(TargetAlt):
     print("Setting Airspeed to: %s" % vel)
 
 # commencing camera ops - take da pic
-"""
+
 def cam_ops_pic():
-        cam_port = 0 # 0 for internal cam, 1 for external cam
+    for cam_port in range(0,4):  # loop to auto-wsitc
         cam = cv.VideoCapture(cam_port)
         result, image = cam.read()
 
         if result:  # No error, camera is successfully opened
             cv.imshow("Drone Cam", image)  # Showing result
             cv.imwrite("DroneCam.jpeg", image)  # Saving image
-            cv.waitKey(0)
-            cv.destroyWindow("Drone Cam")
+            time.sleep(2)
+            cv.destroyAllWindows()
             cam.release()  # Release the camera resources
+            break
         else:
             print("Failed to open camera port {cam_port}")
-"""
 
 # commencing image processing ops - find da target
-
 """"
 def image_to_coordinates(image_path, real_world_width, real_world_height, altitude):
     # Load the image
@@ -161,9 +160,15 @@ coordinates = image_to_coordinates(image_path, real_world_width, real_world_heig
 
 print("Real-world coordinates: ", coordinates)
 """
+piclocation = dk.LocationGlobalRelative(-35.362, 149.165234, 20)
 
-
-piclocation = dk.LocationGlobalRelative(-35.3632609, 149.1652289, 20)
+def get_distance_metres(location1, location2): # distance between 2 points using Haversine formula
+    dlat = m.radians(location2.lat - location1.lat)
+    dlon = m.radians(location2.lon - location1.lon)
+    a = m.sin(dlat / 2) * m.sin(dlat / 2) + m.cos(m.radians(location1.lat)) * m.cos(m.radians(location2.lat)) * m.sin(dlon / 2) * m.sin(dlon / 2)
+    c = 2 * m.atan2(m.sqrt(a), m.sqrt(1 - a))
+    distance = 6371000 * c  # Approximate radius of the Earth in meters
+    return distance
 
 # commencing navigation ops - go to da target
 def flight():
@@ -176,18 +181,21 @@ def flight():
             
         if remaining_distance <= 1:  # Specify the desired threshold distance
             print("Reached target location!")
+            print(vehicle.location.global_relative_frame)
             break
-
         time.sleep(1)
 
 # commencing drop - drop da load
 def dropper():
-    print("Dropping payload")
+    print("Dropping payload at %s", vehicle.location.global_relative_frame)
+    time.sleep(5)
 
 # commencing landing ops - land da drone
 def return_n_land():
     print("Returning to Launch")
     vehicle.mode = dk.VehicleMode("RTL")
+    time.sleep(30)
+    print("Arrived at: ",vehicle.location.global_relative_frame)
 
 # commencing shutdown ops - shutdown da drone
 def shutdown():
@@ -200,4 +208,8 @@ def shutdown():
 # execute order 66 - order of ops
 pre_check()
 arm_takeoff(alt)
-# cam_ops_pic()
+cam_ops_pic()
+flight()
+dropper()
+return_n_land()
+shutdown()
