@@ -2,7 +2,7 @@
 IEEE RAS summer internship stuff. fancier read-me will come later. everything on here is just draft/test
 
 ## To Launch
-``` python3.6 D1_Thunderbolt -v ArduCopter```
+``` python3.6 D1_Thunderbolt.py -v ArduCopter```
 
 ## IMPORTANT
 - install python 3.6.10
