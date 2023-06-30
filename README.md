@@ -1,6 +1,9 @@
 # payload-dropping-drone
 IEEE RAS summer internship stuff. fancier read-me will come later. everything on here is just draft/test
 
+## To Launch
+``` python3.6 D1_Thunderbolt -v ArduCopter```
+
 ## IMPORTANT
 - install python 3.6.10
   
