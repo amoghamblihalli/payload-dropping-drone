@@ -4,6 +4,7 @@ import dronekit as dk
 import time
 import cv2 as cv
 import math as m
+import detect_marker as dm
 
 # starting sim...
 print("Starting the D1-Phantom...")
@@ -111,7 +112,14 @@ def cam_ops_pic():
             print("Failed to open camera port {cam_port}")
 
 # commencing image processing ops - find da target
-""""
+
+def find_bounding_box(image):
+    # Perform the necessary image processing steps to find the bounding box
+    # This could include thresholding, contour detection, etc.
+    # Once you have the bounding box coordinates, return them as (x, y, width, height)
+    # You can use OpenCV functions like cv2.findContours and cv2.boundingRect to achieve this.
+    pass
+
 def image_to_coordinates(image_path, real_world_width, real_world_height, altitude):
     # Load the image
     image = cv.imread(image_path)
@@ -137,19 +145,12 @@ def image_to_coordinates(image_path, real_world_width, real_world_height, altitu
     real_world_y = centroid_y / image_scale_y
 
     # Create a LocationGlobalRelative object with the converted coordinates
-    real_world_position = LocationGlobalRelative(real_world_x, real_world_y, altitude)
+    real_world_position = dk.LocationGlobalRelative(real_world_x, real_world_y, altitude)
 
     return real_world_position
 
-def find_bounding_box(image):
-    # Perform the necessary image processing steps to find the bounding box
-    # This could include thresholding, contour detection, etc.
-    # Once you have the bounding box coordinates, return them as (x, y, width, height)
-    # You can use OpenCV functions like cv2.findContours and cv2.boundingRect to achieve this.
-    pass
-
 # Define the necessary variables and parameters
-image_path = "path/to/image.jpg"
+image_path = "path/to/DroneCam.jpeg"
 real_world_width = 10.0  # Example: Width of the real-world map represented by the image
 real_world_height = 8.0  # Example: Height of the real-world map represented by the image
 altitude = 20.0  # Example: Altitude at which the drone will be flying
@@ -158,8 +159,6 @@ altitude = 20.0  # Example: Altitude at which the drone will be flying
 marked_point = (100, 150)  # Example: Coordinates of the marked point on the image
 coordinates = image_to_coordinates(image_path, real_world_width, real_world_height, altitude)
 
-print("Real-world coordinates: ", coordinates)
-"""
 piclocation = dk.LocationGlobalRelative(-35.362, 149.165234, 20)
 
 def get_distance_metres(location1, location2): # distance between 2 points using Haversine formula
