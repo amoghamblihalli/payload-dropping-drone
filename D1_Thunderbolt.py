@@ -113,51 +113,22 @@ def cam_ops_pic():
 
 # commencing image processing ops - find da target
 
-def find_bounding_box(image):
-    # Perform the necessary image processing steps to find the bounding box
-    # This could include thresholding, contour detection, etc.
-    # Once you have the bounding box coordinates, return them as (x, y, width, height)
-    # You can use OpenCV functions like cv2.findContours and cv2.boundingRect to achieve this.
-    pass
+'''def img_proc():
+    x, y = dm.detect()
+    print("Target detected")
 
-def image_to_coordinates(image_path, real_world_width, real_world_height, altitude):
-    # Load the image
-    image = cv.imread(image_path)
+    # converting centroid coordinates to GPS coordinates
 
-    # Get the image dimensions
-    image_height, image_width, _ = image.shape
+    def image_to_real(image_path, real_world_width, real_world_height, altitude, centroid_x, centroid_y):
+        image = cv.imread(image_path)
+        image_height, image_width, _ = image.shape
+        image_scale_x = image_width / real_world_width
+        image_scale_y = image_height / real_world_height
+        real_world_x = centroid_x / image_scale_x
+        real_world_y = centroid_y / image_scale_y
 
-    # Get the bounding box coordinates
-    bounding_box_x, bounding_box_y, bounding_box_width, bounding_box_height = find_bounding_box(image)
-
-    # Calculate the centroid of the bounding box
-    centroid_x = bounding_box_x + bounding_box_width // 2
-    centroid_y = bounding_box_y + bounding_box_height // 2
-
-    # Convert the centroid coordinates to real-world position coordinates
-    # Assuming the image represents a 2D map with known dimensions and GPS coordinates
-    # Calculate the scaling factor based on the image and real-world dimensions
-    image_scale_x = image_width / real_world_width
-    image_scale_y = image_height / real_world_height
-
-    # Convert the centroid coordinates to real-world position coordinates
-    real_world_x = centroid_x / image_scale_x
-    real_world_y = centroid_y / image_scale_y
-
-    # Create a LocationGlobalRelative object with the converted coordinates
-    real_world_position = dk.LocationGlobalRelative(real_world_x, real_world_y, altitude)
-
-    return real_world_position
-
-# Define the necessary variables and parameters
-image_path = "path/to/DroneCam.jpeg"
-real_world_width = 10.0  # Example: Width of the real-world map represented by the image
-real_world_height = 8.0  # Example: Height of the real-world map represented by the image
-altitude = 20.0  # Example: Altitude at which the drone will be flying
-
-# Call the function to convert the image coordinates to real-world coordinates
-marked_point = (100, 150)  # Example: Coordinates of the marked point on the image
-coordinates = image_to_coordinates(image_path, real_world_width, real_world_height, altitude)
+        # Convert the real-world coordinates to GPS coordinates
+        new_location = dk.get_location_metres(current_location, real_world_x, real_world_y)'''
 
 piclocation = dk.LocationGlobalRelative(-35.362, 149.165234, 20)
 
