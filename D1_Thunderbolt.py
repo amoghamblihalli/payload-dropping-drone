@@ -112,23 +112,29 @@ def cam_ops_pic():
             print("Failed to open camera port {cam_port}")
 
 # commencing image processing ops - find da target
+def img_proc(real_world_width, real_world_height):
+    # Convert the centroid coordinates to real-world position coordinates
+    current_location = vehicle.location.global_relative_frame
+    dm.detect()
+    centroid_x = dm.detect(centroid_x)
+    centroid_y = dm.detect(centroid_y)
+    image_path = "DroneCam.jpg"
+    image = cv.imread(image_path)
+    image_height, image_width, _ = image.shape
+    image_scale_x = image_width / real_world_width
+    image_scale_y = image_height / real_world_height
+    real_world_x = centroid_x / image_scale_x
+    real_world_y = centroid_y / image_scale_y
 
-'''def img_proc():
-    x, y = dm.detect()
-    print("Target detected")
+    # Convert the real-world coordinates to GPS coordinates
+    dlat = m.radians(real_world_y / 6371000)
+    dlon = m.radians(real_world_x / (6371000 * m.cos(m.radians(current_location.lat))))
+    new_latitude = current_location.lat + m.degrees(dlat)
+    new_longitude = current_location.lon + m.degrees(dlon)
 
-    # converting centroid coordinates to GPS coordinates
-
-    def image_to_real(image_path, real_world_width, real_world_height, altitude, centroid_x, centroid_y):
-        image = cv.imread(image_path)
-        image_height, image_width, _ = image.shape
-        image_scale_x = image_width / real_world_width
-        image_scale_y = image_height / real_world_height
-        real_world_x = centroid_x / image_scale_x
-        real_world_y = centroid_y / image_scale_y
-
-        # Convert the real-world coordinates to GPS coordinates
-        new_location = dk.get_location_metres(current_location, real_world_x, real_world_y)'''
+    # Create a new LocationGlobalRelative object with the converted coordinates
+    new_location = dk.LocationGlobalRelative(new_latitude, new_longitude)
+    return new_location
 
 piclocation = dk.LocationGlobalRelative(-35.362, 149.165234, 20)
 
