@@ -4,12 +4,12 @@ import dronekit as dk
 import time
 import cv2 as cv
 import math as m
-import detect_marker as dm
+# import detect_marker as dm
 
 # starting sim...
 print("Starting the D1-Phantom...")
 sitl = dronekit_sitl.start_default()
-connection_string = sitl.connection_string() # or 'tcp:127.0.0.1:11345'
+connection_string = 'tcp:127.0.0.1:5763' # sitl.connection_string() # or 'tcp:127.0.0.1:11345'
 
 # connecting to drone...
 print("Connecting to vehicle on: %s" % (connection_string,))
@@ -112,7 +112,7 @@ def cam_ops_pic():
             print("Failed to open camera port {cam_port}")
 
 # commencing image processing ops - find da target
-def img_proc(real_world_width, real_world_height):
+'''def img_proc(real_world_width, real_world_height):
     # Convert the centroid coordinates to real-world position coordinates
     current_location = vehicle.location.global_relative_frame
     dm.detect()
@@ -134,7 +134,7 @@ def img_proc(real_world_width, real_world_height):
 
     # Create a new LocationGlobalRelative object with the converted coordinates
     new_location = dk.LocationGlobalRelative(new_latitude, new_longitude)
-    return new_location
+    return new_location'''
 
 piclocation = dk.LocationGlobalRelative(-35.362, 149.165234, 20)
 

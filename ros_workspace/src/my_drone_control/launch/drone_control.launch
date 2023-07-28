@@ -1,0 +1,20 @@
+<launch>
+    <!-- Start Gazebo with empty world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="world_name" value="$(find my_drone_control)/worlds/empty.world"/>
+    </include>
+
+    <!-- Load Ardupilot SITL -->
+    <node name="sitl" pkg="ardupilot" type="sim_vehicle.py" respawn="false" output="screen">
+        <param name="instance" value="0"/>
+        <param name="use_sim_time" value="true"/>
+    </node>
+
+    <!-- Launch your custom nodes -->
+    <node name="arm_takeoff_node" pkg="my_drone_control" type="node_arm_takeoff.py" output="screen"/>
+    <node name="flight_node" pkg="my_drone_control" type="node_flight.py" output="screen"/>
+    <node name="land_shutdown_node" pkg="my_drone_control" type="node_land_shutdown.py" output="screen"/>
+</launch>
