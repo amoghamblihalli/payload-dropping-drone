@@ -12,3 +12,5 @@ IEEE RAS summer internship stuff. fancier read-me will come later. everything on
 ```pip3.6 install dronekit==2.9.2```
 
 ```pip3.6 install opencv-python==4.5.3.56```
+
+```python3.6 -m pip install mavproxy==1.7.1```
