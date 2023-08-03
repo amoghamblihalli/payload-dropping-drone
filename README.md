@@ -1,4 +1,4 @@
-# IEEE RAS Summper Project: Payload Dropping Drone
+# IEEE RAS Summer Project: Payload Dropping Drone
 
 Works with the latest versions of ArduPilot, DroneKit, PyMAVLink, MAVROS, ROS Noetic, Gazebo11 (August 2023).
 Successfully runs on Python 3.8
@@ -11,6 +11,7 @@ System Requirements: Ubuntu 20.04, 8 GB RAM
 Note: Change ```git checkout Copter-4.0.4``` to ```git checkout Copter-4.3.7```
 
 [Gazebo](https://github.com/Intelligent-Quads/iq_tutorials/blob/master/docs/installing_gazebo_arduplugin.md)
+
 [ROS Noetic](https://github.com/Intelligent-Quads/iq_tutorials/blob/master/docs/installing_ros_20_04.md)
 
 
