@@ -12,7 +12,7 @@ Works with these versions:
 
 - Gazebo ver 11.13.0-1~focal
 
-- ROSN oetic
+- ROS Noetic
 
 System Requirements: Ubuntu 20.04, 8 GB RAM
 
