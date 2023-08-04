@@ -1,7 +1,18 @@
 # IEEE RAS Summer Project: Payload Dropping Drone
 
-Works with the latest versions of ArduPilot, DroneKit, PyMAVLink, MAVROS, ROS Noetic, Gazebo11 (August 2023).
-Successfully runs on Python 3.8
+Works with these versions: 
+
+- ArduPilot Copter ver 4.3.7
+
+- Dronekit ver 2.9.2
+
+- pymavlink ver 2.4.39
+
+- mavros ver 1.16.0
+
+- Gazebo ver 11.13.0-1~focal
+
+- ROSN oetic
 
 System Requirements: Ubuntu 20.04, 8 GB RAM
 
@@ -14,14 +25,22 @@ Note: Change ```git checkout Copter-4.0.4``` to ```git checkout Copter-4.3.7```
 
 [ROS Noetic](https://github.com/Intelligent-Quads/iq_tutorials/blob/master/docs/installing_ros_20_04.md)
 
+[Simulations](https://github.com/Intelligent-Quads/iq_sim/tree/master)
+
+Note:
+
+```runway.world``` must be replaced in ```~/catkin_ws/src/iq_sim/worlds```
+
+```aruco_visual_marker_0```, ```aruco_visual_marker_0_pad``` and ```drone_with_camera``` must be added/replaced in ```~/catkin_ws/src/iq_sim/launch```
 
 ## To Launch
-In one terminal,
+Terminal 1: ```roslaunch iq_sim runway.launch``` - ensure ROS-Noetic is installed beforehand
 
-```cd ~/ardupilot/Arducopter sim_vehicle.py -v copter```
+Terminal 2: ```cd ~/ardupilot/ArduCopter/ && sim_vehicle.py -v ArduCopter -f gazebo-iris --console``` - ensure ArduPilot and ArduPilot Gazebo plugins are installed
 
-In another terminal wherever DroneKit (main.py, etc.) are saved,
+Terminal 3: ```python3.8 main.py``` - make sure this is running in the folder where drone scripts are stored
 
+Terminal 4: ```python tryCam.py``` - this is to get camera view, integration with the script will be done soon. 
 ```python3.8 main.py```
 
 ## Warnings
