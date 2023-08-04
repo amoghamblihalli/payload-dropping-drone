@@ -33,6 +33,25 @@ def arm_and_takeoff(vehicle, TargetAlt, TargetVel):
     print("Setting Airspeed to: %s" % TargetVel)
 
 def land_and_disarm(vehicle):
+
+    print("Ensuring mode is to GUIDED")
+    vehicle.mode = dk.VehicleMode("GUIDED") # always needs to be set GUIDED while arming
+    time.sleep(3)
+    print("Mode: %s" % vehicle.mode.name)
+    vehicle.armed = True
+    
+    while not vehicle.armed:
+        print("Waiting for arming...")
+        time.sleep(1)
+
+    print("Landing! Steer Clear!")
+
+    i = vehicle.location.global_relative_frame.alt
+
+    while i > 0:
+        vehicle.simple_takeoff(i-1)
+        print("Current Altitude is %s" % vehicle.location.global_relative_frame.alt)        
+    
     pass
 
 def return_to_launch(vehicle):

@@ -17,14 +17,14 @@ vehicle = dk.connect(connection_string, wait_ready=True)
 # Menu Functions
 TargetAlt = float(input("Enter target altitude: "))
 TargetVel = float(input("Enter target velocity: "))
-flight_mode = int(input("Press 1 for GPS Navigation, press 2 for Relative Navigation"))
+flight_mode = int(input("Press 1 for GPS Navigation, press 2 for Relative Navigation, 3 for Search"))
 
 if flight_mode == 1:
     lat = float(input("Enter target latitude (degrees): "))
     lon = float(input("Enter target longitude (degrees): "))
     location = dk.LocationGlobalRelative(lat,lon,TargetAlt)
 
-elif flight_mode == 2:
+elif flight_mode == 2 or 3:
     x_distance_metres = float(input("Enter x-axis distance (meters): "))
     y_distance_metres = float(input("Enter y-axis distance (meters): "))
 
@@ -36,6 +36,10 @@ if flight_mode == 1:
     f.GPS_flight(vehicle,location)
 elif flight_mode == 2:
     f.Relative_flight(vehicle,x_distance_metres,y_distance_metres,TargetAlt)
+elif flight_mode ==3: 
+    f.search_algo(vehicle,TargetAlt)
+
+#tl.land_and_disarm(vehicle)
 
 tl.return_to_launch(vehicle)
 tl.shutdown(vehicle)

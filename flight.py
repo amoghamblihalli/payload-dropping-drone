@@ -3,6 +3,7 @@ import dronekit as dk
 import math as m
 import pymavlink as pml
 import camera as c
+import test
 
 # Distance between 2 points using Haversine formula
 def get_distance_metres(location1, location2): 
@@ -56,16 +57,23 @@ def Relative_flight(vehicle, x_distance_metres, y_distance_metres,TargetAlt):
 
 def search_algo(vehicle, TargetAlt):
     
-    Relative_flight(vehicle, 30,30, TargetAlt)
-    
-    i = 30
+    test.cam_test()
+
+    i = 35
+    j = 15
+
+    Relative_flight(vehicle, -i,j, TargetAlt)
 
     while i > 0:
 
-        Relative_flight(vehicle, -60,0, TargetAlt)
+        Relative_flight(vehicle, -(35*2),0, TargetAlt)
+        time.sleep(2)
         Relative_flight(vehicle, 0,-1,TargetAlt)
-        Relative_flight(vehicle,60,0, TargetAlt)
+        time.sleep(2)
+        Relative_flight(vehicle,(35*2),0, TargetAlt)
+        time.sleep(2)
         Relative_flight(vehicle, 0,-1,TargetAlt)    
+        time.sleep(2)
         
         i-=1
 
